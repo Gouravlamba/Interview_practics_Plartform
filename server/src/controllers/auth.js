@@ -27,7 +27,8 @@ export const loginValidation = [
 
 export async function register(req, res, next) {
   try {
-    const { name, email, password } = req.body
+    const { name, password } = req.body
+    const email = String(req.body.email || '').toLowerCase().trim()
 
     const existing = await User.findOne({ email })
     if (existing) throw new AppError('Email already registered', 409)
@@ -49,7 +50,8 @@ export async function register(req, res, next) {
 
 export async function login(req, res, next) {
   try {
-    const { email, password } = req.body
+    const { password } = req.body
+    const email = String(req.body.email || '').toLowerCase().trim()
 
     const user = await User.findOne({ email }).select('+password +refreshToken')
     if (!user || !(await user.comparePassword(password))) {

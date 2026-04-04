@@ -1,22 +1,26 @@
-import { body, query } from 'express-validator'
+import { body } from 'express-validator'
+import mongoose from 'mongoose'
 import Question from '../models/Question.js'
 import { AppError } from '../middleware/error.js'
 
+const ALLOWED_CATEGORIES = ['technical', 'behavioral', 'system-design', 'product', 'general']
+const ALLOWED_DIFFICULTIES = ['easy', 'medium', 'hard']
+
 export const questionValidation = [
   body('text').trim().notEmpty().withMessage('Question text is required'),
-  body('category')
-    .optional()
-    .isIn(['technical', 'behavioral', 'system-design', 'product', 'general']),
-  body('difficulty').optional().isIn(['easy', 'medium', 'hard']),
+  body('category').optional().isIn(ALLOWED_CATEGORIES),
+  body('difficulty').optional().isIn(ALLOWED_DIFFICULTIES),
 ]
 
 export async function getQuestions(req, res, next) {
   try {
     const { category, difficulty, roleId, page = 1, limit = 20 } = req.query
     const filter = {}
-    if (category) filter.category = category
-    if (difficulty) filter.difficulty = difficulty
-    if (roleId) filter.roleId = roleId
+    if (category && ALLOWED_CATEGORIES.includes(category)) filter.category = category
+    if (difficulty && ALLOWED_DIFFICULTIES.includes(difficulty)) filter.difficulty = difficulty
+    if (roleId && mongoose.isValidObjectId(roleId)) {
+      filter.roleId = new mongoose.Types.ObjectId(roleId)
+    }
 
     const skip = (Math.max(1, parseInt(page)) - 1) * Math.min(100, parseInt(limit))
     const [questions, total] = await Promise.all([

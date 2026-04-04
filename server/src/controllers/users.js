@@ -13,15 +13,18 @@ export async function getProfile(req, res) {
 
 export async function updateProfile(req, res, next) {
   try {
-    const { name, email, avatar } = req.body
+    const { name, avatar } = req.body
     const update = {}
-    if (name) update.name = name
-    if (email) update.email = email
-    if (avatar !== undefined) update.avatar = avatar
+    if (name) update.name = String(name).trim()
+    if (avatar !== undefined) update.avatar = String(avatar).trim()
 
-    if (email && email !== req.user.email) {
-      const existing = await User.findOne({ email })
-      if (existing) throw new AppError('Email already in use', 409)
+    if (req.body.email) {
+      const email = String(req.body.email).toLowerCase().trim()
+      if (email !== req.user.email) {
+        const existing = await User.findOne({ email })
+        if (existing) throw new AppError('Email already in use', 409)
+        update.email = email
+      }
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, update, {

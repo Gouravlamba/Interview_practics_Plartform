@@ -62,7 +62,10 @@ export async function getUserSessions(req, res, next) {
     const skip = (page - 1) * limit
 
     const filter = { userId: req.user._id }
-    if (req.query.status) filter.status = req.query.status
+    const ALLOWED_STATUSES = ['setup', 'active', 'paused', 'completed', 'abandoned']
+    if (req.query.status && ALLOWED_STATUSES.includes(req.query.status)) {
+      filter.status = req.query.status
+    }
 
     const [sessions, total] = await Promise.all([
       InterviewSession.find(filter)

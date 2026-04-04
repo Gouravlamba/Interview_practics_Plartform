@@ -1,10 +1,12 @@
 import { body } from 'express-validator'
+import mongoose from 'mongoose'
 import { getAIInsight } from '../services/aiService.js'
 import InterviewSession from '../models/InterviewSession.js'
 import { AppError } from '../middleware/error.js'
 
 export const aiInsightValidation = [
   body('message').trim().notEmpty().withMessage('Message is required'),
+  body('sessionId').optional().isMongoId().withMessage('Invalid session ID'),
 ]
 
 export async function getInsight(req, res, next) {
@@ -13,8 +15,9 @@ export async function getInsight(req, res, next) {
 
     let sessionContext = context || {}
     if (sessionId) {
+      const safeId = new mongoose.Types.ObjectId(sessionId)
       const session = await InterviewSession.findOne({
-        _id: sessionId,
+        _id: safeId,
         userId: req.user._id,
       }).select('persona difficulty')
       if (session) {
@@ -25,7 +28,8 @@ export async function getInsight(req, res, next) {
     const result = await getAIInsight(message, sessionContext)
 
     if (sessionId) {
-      await InterviewSession.findByIdAndUpdate(sessionId, {
+      const safeId = new mongoose.Types.ObjectId(sessionId)
+      await InterviewSession.findByIdAndUpdate(safeId, {
         $push: {
           messages: {
             sender: 'ai',
@@ -47,8 +51,9 @@ export async function saveUserMessage(req, res, next) {
     const { message, sessionId } = req.body
     if (!sessionId) throw new AppError('sessionId is required', 400)
 
+    const safeId = new mongoose.Types.ObjectId(sessionId)
     const session = await InterviewSession.findOne({
-      _id: sessionId,
+      _id: safeId,
       userId: req.user._id,
     })
     if (!session) throw new AppError('Session not found', 404)
