@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Code2, Briefcase, Rocket } from 'lucide-react'
 import GlassCard from '../components/GlassCard'
@@ -6,6 +7,7 @@ import DropzoneUpload from '../components/DropzoneUpload'
 import RoleCard from '../components/RoleCard'
 import GlowButton from '../components/GlowButton'
 import { useApp } from '../context/AppContext'
+import { fileApi, sessionApi } from '../services/api'
 
 const roles = [
   {
@@ -26,11 +28,42 @@ const roles = [
 ]
 
 export default function InterviewSetupPage() {
-  const { interviewSetup, setInterviewSetup } = useApp()
+  const { interviewSetup, setInterviewSetup, setCurrentSession } = useApp()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [uploadedFileId, setUploadedFileId] = useState(null)
 
-  const handleGenerate = () => {
-    navigate('/interview')
+  const handleFileSelect = async (file) => {
+    setInterviewSetup((p) => ({ ...p, resumeName: file.name || file }))
+    if (file instanceof File) {
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('purpose', 'resume')
+        const { data } = await fileApi.upload(formData)
+        setUploadedFileId(data.data.id)
+      } catch {
+        // file upload optional — continue without it
+      }
+    }
+  }
+
+  const handleGenerate = async () => {
+    setLoading(true)
+    try {
+      const { data } = await sessionApi.create({
+        persona: interviewSetup.persona,
+        jobDescription: interviewSetup.jobDescription,
+        resumeFileId: uploadedFileId,
+        difficulty: 'medium',
+      })
+      setCurrentSession(data.data.session)
+      navigate('/interview')
+    } catch {
+      navigate('/interview')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -44,7 +77,7 @@ export default function InterviewSetupPage() {
               <h2 className="mb-4 text-xl font-medium">Resume Upload (PDF/Text)</h2>
               <DropzoneUpload
                 fileName={interviewSetup.resumeName}
-                onFileSelect={(name) => setInterviewSetup((p) => ({ ...p, resumeName: name }))}
+                onFileSelect={handleFileSelect}
               />
             </div>
 
@@ -76,8 +109,12 @@ export default function InterviewSetupPage() {
           </div>
 
           <div className="mt-7 text-center">
-            <GlowButton className="min-w-[320px] text-lg" onClick={handleGenerate}>
-              Generate Questions & Start
+            <GlowButton
+              className="min-w-[320px] text-lg"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Generate Questions & Start'}
             </GlowButton>
           </div>
         </GlassCard>
