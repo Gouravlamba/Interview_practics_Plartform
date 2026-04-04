@@ -6,7 +6,7 @@ export default function DropzoneUpload({ fileName, onFileSelect }) {
 
   const handleFile = (file) => {
     if (!file) return
-    onFileSelect(file.name)
+    onFileSelect(file)
   }
 
   return (

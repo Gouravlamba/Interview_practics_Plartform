@@ -1,13 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { Mic, MessageSquare, HelpCircle } from 'lucide-react'
 import PageTransition from '../components/PageTransition'
 import ChatBubble from '../components/ChatBubble'
 import CodeEditorPanel from '../components/CodeEditorPanel'
 import { useApp } from '../context/AppContext'
+import { connectSocket, disconnectSocket, joinRoom, sendSocketMessage, requestAI, emitCodeUpdate, saveCode } from '../services/socket'
+import { aiApi } from '../services/api'
 
 export default function LiveInterviewPage() {
-  const { messages, sendMessage, code, setCode, timer, setTimer } = useApp()
+  const { messages, setMessages, code, setCode, timer, setTimer, currentSession } = useApp()
   const [draft, setDraft] = useState('')
+  const [socketReady, setSocketReady] = useState(false)
+  const socketRef = useRef(null)
+  const roomId = currentSession?.roomId
+  const sessionId = currentSession?._id || currentSession?.id
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -16,11 +22,95 @@ export default function LiveInterviewPage() {
     return () => clearInterval(id)
   }, [setTimer])
 
+  useEffect(() => {
+    if (!roomId) return
+
+    const socket = connectSocket()
+    socketRef.current = socket
+    setSocketReady(true)
+
+    joinRoom(roomId, sessionId)
+
+    socket.on('receive-message', (msg) => {
+      setMessages((prev) => {
+        if (prev.find((m) => m.id === msg.id)) return prev
+        return [...prev, msg]
+      })
+    })
+
+    socket.on('ai-response', (msg) => {
+      setMessages((prev) => {
+        if (prev.find((m) => m.id === msg.id)) return prev
+        return [...prev, msg]
+      })
+    })
+
+    socket.on('code-sync', ({ code: newCode }) => {
+      setCode(newCode)
+    })
+
+    socket.on('session-history', ({ messages: hist }) => {
+      if (hist?.length > 0) setMessages(hist)
+    })
+
+    return () => {
+      socket.off('receive-message')
+      socket.off('ai-response')
+      socket.off('code-sync')
+      socket.off('session-history')
+      disconnectSocket()
+    }
+  }, [roomId, sessionId, setMessages, setCode])
+
   const timeString = useMemo(() => {
     const m = String(Math.floor(timer / 60)).padStart(2, '0')
     const s = String(timer % 60).padStart(2, '0')
     return `00:${m}:${s}`
   }, [timer])
+
+  const handleSend = async () => {
+    if (!draft.trim()) return
+    const text = draft.trim()
+    setDraft('')
+
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    }
+    setMessages((prev) => [...prev, userMsg])
+
+    if (roomId && socketRef.current?.connected) {
+      sendSocketMessage(roomId, sessionId, text)
+      requestAI(roomId, sessionId, text)
+    } else {
+      try {
+        const { data } = await aiApi.getInsight({ message: text, sessionId })
+        const aiMsg = {
+          id: Date.now() + 1,
+          sender: 'ai',
+          text: data.data.text,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        }
+        setMessages((prev) => [...prev, aiMsg])
+      } catch {
+        setMessages((prev) => [...prev, {
+          id: Date.now() + 1,
+          sender: 'ai',
+          text: 'Good answer. Try structuring it with edge cases, time complexity, and a quick example for clarity.',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        }])
+      }
+    }
+  }
+
+  const handleCodeChange = (newCode) => {
+    setCode(newCode)
+    if (roomId && socketRef.current?.connected) {
+      emitCodeUpdate(roomId, newCode, 'python')
+    }
+  }
 
   return (
     <PageTransition>
@@ -57,14 +147,12 @@ export default function LiveInterviewPage() {
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                   placeholder="Type your response..."
                   className="flex-1 rounded-xl border border-slate-300 px-4 py-3 outline-none"
                 />
                 <button
-                  onClick={() => {
-                    sendMessage(draft)
-                    setDraft('')
-                  }}
+                  onClick={handleSend}
                   className="rounded-xl bg-slate-900 px-5 py-3 font-medium text-white"
                 >
                   Send
@@ -80,7 +168,7 @@ export default function LiveInterviewPage() {
             </div>
           </div>
 
-          <CodeEditorPanel code={code} setCode={setCode} />
+          <CodeEditorPanel code={code} setCode={handleCodeChange} />
         </div>
       </div>
     </PageTransition>
