@@ -15,7 +15,7 @@
 
 ---
 
-## 📚 Table of Contents**
+## 📚 Table of Contents
 
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
