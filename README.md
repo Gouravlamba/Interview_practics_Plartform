@@ -35,7 +35,7 @@
 
 ---
 
-## 🎯 Problem Statemen
+## 🎯 Problem Stateme
 
 Preparing for technical interviews is stressful, expensive, and difficult to schedule. Traditional mock-interview platforms are either too rigid, lack real-time feedback, or require another human to participate.
 
