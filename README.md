@@ -48,7 +48,7 @@ Preparing for technical interviews is stressful, expensive, and difficult to sch
 
 ---
 
-## ✨ Key Featur
+## ✨ Key Features
 
 | Feature | Description |
 |---|---|
