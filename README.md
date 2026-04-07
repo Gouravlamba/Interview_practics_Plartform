@@ -65,7 +65,7 @@ Preparing for technical interviews is stressful, expensive, and difficult to sch
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech 
 
 ### Frontend
 
