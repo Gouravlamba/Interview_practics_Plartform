@@ -106,7 +106,7 @@ Preparing for technical interviews is stressful, expensive, and difficult to sch
 
 ---
 
-## 🏗 Architecture
+## 🏗 Architectur
 
 The platform follows a **three-tier architecture** with a React SPA on the frontend, an Express REST + Socket.IO backend, and MongoDB for persistence. OpenAI is consumed as an external service.
 
