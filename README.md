@@ -17,7 +17,6 @@
 
 ## 📚 Table of contents
 ## The table of content used for the relation
-## to measure the history of the woerld
 
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
