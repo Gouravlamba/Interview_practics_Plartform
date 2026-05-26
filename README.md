@@ -23,8 +23,7 @@
 ## to apply relationship building between the each others
 ## we needs to ryirs to do somthing
 ## for building new and challanging
-## llats make somthing new for this application
-to building somthing new we needs to add all the futures
+## llats make somthing new for this applicatio
 
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
