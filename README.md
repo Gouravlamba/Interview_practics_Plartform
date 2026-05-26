@@ -22,7 +22,6 @@
 ## its an second last option for this achievement
 ## to apply relationship building between the each others
 ## we needs to ryirs to do somthing
-## for building new and challanging
 
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
