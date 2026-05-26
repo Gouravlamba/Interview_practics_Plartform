@@ -20,7 +20,6 @@
 ## to measure the history of the woerld
 ## we needs to change sonthing in our mind
 ## its an second last option for this achievement
-## to apply relationship building between the each others
 
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
