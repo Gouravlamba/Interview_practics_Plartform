@@ -17,7 +17,7 @@
 
 ## 📚 Table of contents
 ## here is the mordern table of content
-## to use all table of content and all other facilities please content to us
+
 
 
 
