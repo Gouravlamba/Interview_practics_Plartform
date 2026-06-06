@@ -20,7 +20,7 @@
 ## to use all table of content and all other facilities please content to us
 ## here are the multiple common room available are there
 ## please confirm your availabilty to us and then we will met you again
-## if your got rejected the our theam will contect to you 
+
 
 
 
