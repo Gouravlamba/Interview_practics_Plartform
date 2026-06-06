@@ -21,7 +21,7 @@
 ## here are the multiple common room available are there
 ## please confirm your availabilty to us and then we will met you again
 ## if your got rejected the our theam will contect to you 
-## thank you for the inconviense and here is your pool
+
 
 
 
