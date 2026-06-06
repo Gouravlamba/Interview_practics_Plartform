@@ -16,14 +16,6 @@
 ---
 
 ## 📚 Table of contents
-
-
-
-
-
-
-
-
 1. [Problem Statement](#-problem-statement)
 2. [Key Features](#-key-features)
 3. [Tech Stack](#-tech-stack)
