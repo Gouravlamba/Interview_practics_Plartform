@@ -22,7 +22,7 @@
 ## please confirm your availabilty to us and then we will met you again
 ## if your got rejected the our theam will contect to you 
 ## thank you for the inconviense and here is your pool
-## you can alo find your coligieu interview also form here
+
 
 
 1. [Problem Statement](#-problem-statement)
