@@ -2,7 +2,6 @@
   ## here is an product
   ## if you want to update 
   ## it is an product
-  ## to change anything here here i need some
   <img src="frontend/src/assets/logo.png" alt="Interview Practice Platform Logo" width="650" />
   <h1>Interview Practice Platform</h1>
   <p><strong>AI-powered mock interviews with real-time feedback, code execution, and performance analytics.</strong></p>
